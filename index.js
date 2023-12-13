@@ -18,7 +18,6 @@ const authRoute= require('./routes/auth.route')
 
 app.use('/auth', authRoute)
 
-
 //midlleware for error
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
@@ -29,3 +28,4 @@ app.use((err, req, res, next) => {
     message,
   });
 })
+ 

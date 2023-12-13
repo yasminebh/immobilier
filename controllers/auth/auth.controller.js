@@ -18,20 +18,27 @@ module.exports = {
   },
 
   signin: async ( req , res,next) => {
-    const {email, password}= req.body
+    const {email, password:userPassword}= req.body
 
     try {
       const user = await userModel.findOne({email})
       if (!user) {
         return next(errorHandler(404, 'User not found'));
       }
-      const isCorrect = await bcryptjs.compare(password , user.password)
+      const isCorrect = await bcryptjs.compare(userPassword , user.password)
 
       if(!isCorrect) {
         return next(errorHandler(401, 'invalid password'))
       }
-      const token = jwt.sign({id: user._id}, )
-     return  res.status(202).json({message:"you re logged in "})
+      const token = jwt.sign({id: user._id}, process.env.JWT_SECRET)
+      const {password, ...others} = user._doc
+      res
+        .cookie("token", token, {
+          httpOnly: true,
+          expires: new Date(Date.now() + 24 * 60 * 60 *1000),
+        })
+        .status(202)
+        .json({ message: "you re logged in " ,data:others});
     } catch (error) {
       next(error)
     }
